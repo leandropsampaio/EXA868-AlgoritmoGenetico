@@ -24,11 +24,11 @@ function Labyrinth:new(fileName)
       table.insert(self.matrix, column)
       for block in string.gmatch(line, ".") do
         if not self.characters[block] and block ~= " " then
-          print("Error, undefined Character")
+          error("Error, undefined Character")
         else
           table.insert(column, {class = self.characters[block], character = block})
           if self.characters[block] == "begining" then
-            self.beginning = {x = #self.matrix, y = #column};
+            self.beginning = {y = #self.matrix, x = #column};
           end
         end
       end
@@ -40,10 +40,12 @@ function Labyrinth:new(fileName)
   end
 
   local validPosition = function(x, y)
-    if y <= #self.matrix then
-      if x <= #self.matrix[y] then
-        local positionClass = self.matrix[y][x].class
-        return positionClass ~= "wall"
+    if x and y then
+      if y <= #self.matrix then
+        if x <= #self.matrix[y] then
+          local positionClass = self.matrix[y][x].class
+          return positionClass ~= "wall"
+        end
       end
     end
     return false
@@ -62,15 +64,17 @@ function Labyrinth:new(fileName)
         newX, newY = currentPosition.x - 1, currentPosition.y
       end
       if validPosition(newX, newY) then
-        return {newX, newY}
+        return {x = newX, y = newY}
       end
     end
     return nil
   end
 
   local isAtFinal = function(position)
-    if validPosition(position.x,position.y) then
-      return self.matrix[y][x].class == "ending"
+    if position then
+      if validPosition(position.x,position.y) then
+        return self.matrix[position.y][position.x].class == "ending"
+      end
     end
   end
 

@@ -9,7 +9,7 @@ function Organism:new(genomeSize)
 
         constructor = function (this, genomeSize)
             this.generation = 0
-            this.fitness = 0
+            this.fitness = genomeSize * 2
             this.genome = {}
             for index = 1, genomeSize, 1 do
                 table.insert(this.genome, math.random(0, 3)) 

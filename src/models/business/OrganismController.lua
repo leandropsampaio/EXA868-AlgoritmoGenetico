@@ -1,25 +1,27 @@
 local OrganismController = {}
 local Json = require "util.Json"
 
-function OrganismController:new(organismConstructor)
+function OrganismController:new(organismConstructor, initialPosition)
 
   local self = {
     organisms;
     numberOfGenomes;
     genomeSize;
 
-    constructor = function (this)
+    constructor = function (this, initialPosition)
       this.numberOfGenomes = 50
       this.organisms = {}
       this.genomeSize = 16
 
       for index = 1, this.numberOfGenomes, 1 do
-        this.organisms[index] = organismConstructor:new(this.genomeSize)
+        local organism = organismConstructor:new(this.genomeSize)
+        organism.setPosition({x = initialPosition.x, y = initialPosition.y})
+        table.insert(this.organisms, organism)
       end
     end
   }
 
-  self.constructor(self)
+  self.constructor(self, initialPosition)
 
   local crossover = function (MomOrganism, DadOrganism, mutationProbability)
     if(not (MomOrganism and DadOrganism and mutationProbability)) then

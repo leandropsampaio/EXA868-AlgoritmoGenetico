@@ -7,7 +7,7 @@ function Finder:new(genomeSize)
     super;
     state; --[==[--0-Alive (-1)-Dead 1-Finish--]==]
     position;
-    
+
     constructor = function (this, genomeSize)
       this.super = Organism:new(genomeSize)
       this.state = 0
@@ -26,13 +26,14 @@ function Finder:new(genomeSize)
   end
 
   local reset = function()
+    self.super.setFitness(genomeSize * 2)
     self.state = 0
   end
-  
+
   local getPosition = function()
     return self.position
   end
-  
+
   local setPosition = function(position)
     self.position = position
   end

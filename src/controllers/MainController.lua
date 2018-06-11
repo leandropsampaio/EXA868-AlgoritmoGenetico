@@ -7,12 +7,16 @@ local MainController = {}
 function MainController:new()
   local self = {
     controllerOrganism;
+    genomeDecoder;
+    stateDecoder;
     labyrinth;
 
     constructor = function (this)
-      this.controllerOrganism = OrganismController:new(Finder)
       this.labyrinth = Labyrinth:new("config.json")
       this.labyrinth.loadLabyrinth("labyrinth.la")
+      this.controllerOrganism = OrganismController:new(Finder, this.labyrinth.getBeginPosition())
+      this.genomeDecoder = {[0] = "UP", [1] = "RIGHT", [2] = "DOWN", [3] = "LEFT"}
+      this.stateDecoder = {alive = 0, dead = -1, finished = 1}
     end
   }
 
@@ -31,7 +35,27 @@ function MainController:new()
 
   local move = function(organisms)
     for index, organism in ipairs(organisms) do
-      
+
+      for key, genome in ipairs(organism.getGenome()) do
+        if organism.getState() == self.stateDecoder.alive then
+          local position = organism.getPosition()
+          local hasMoved = self.labyrinth.move(self.genomeDecoder[genome], position)
+          if hasMoved then
+            organism.setFitness(organism.getFitness() - 1)
+            organism.setPosition(hasMoved)
+            if self.labyrinth.isAtFinal(hasMoved) then
+              print("Finished")
+              organism.setState(self.stateDecoder.finished)
+            end
+          else
+            organism.setFitness(organism.getFitness() - 2)
+            organism.setState(self.stateDecoder.dead)
+          end
+        end
+      end
+      local beginPosition = self.labyrinth.getBeginPosition()
+      print(organism.getPosition().x, organism.getPosition().y)
+      organism.setPosition({x = beginPosition.x, y = beginPosition.y})
     end
   end
 
@@ -45,13 +69,8 @@ function MainController:new()
 
     local mom, dad = self.controllerOrganism.selectBestOnes()
     self.controllerOrganism.crossover(mom, dad, 0.02)
-    
-    for index, value in ipairs(self.controllerOrganism.getOrganisms()) do
-      value.setPosition(self.labyrinth.getBeginPosition())
-      print(value.getPosition().x, value.getPosition().y)
-    end
 
-    if(mom.getGeneration() % 11 == 0) then
+    if(mom.getGeneration() % 11 ~= 0) then
       self.controllerOrganism.saveGenomes("LastsGenomes.json")
     end
 
